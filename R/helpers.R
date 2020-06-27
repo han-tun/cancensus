@@ -6,6 +6,10 @@ cancensus_base_url <- function(){
   url
 }
 
+robust_api_key <- function(api_key){
+  api_key <- if (is.null(api_key) && nchar(Sys.getenv("CM_API_KEY")) > 1) { Sys.getenv("CM_API_KEY") } else { api_key }
+}
+
 clean_vector_list <- function(vector_list,dataset=NULL){
   if (!("data.frame") %in% class(vector_list)) {
     if (class(vector_list)=="character") {

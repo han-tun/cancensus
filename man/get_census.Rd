@@ -6,7 +6,7 @@
 \source{
 Census data and boundary geographies are reproduced and distributed on
 an "as is" basis with the permission of Statistics Canada (Statistics Canada
-2006; 2011; 2016).
+2001; 2006; 2011; 2016).
 }
 \usage{
 get_census(
