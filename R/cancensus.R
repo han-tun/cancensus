@@ -100,6 +100,11 @@ get_census <- function (dataset, regions, level=NA, vectors=c(), geo_format = NA
                            "&vectors=", jsonlite::toJSON(as.character(vectors)),
                            "&level=", level, "&dataset=", dataset)
     if (is.na(geo_format)) param_string=paste0(param_string,"&geo_hierarchy=true")
+    body <- list(dataset = dataset, regions = regions, level = level,
+                 vectors = jsonlite::toJSON(as.character(vectors)),
+                 api_key = api_key)
+    if (is.na(geo_format)) body <- c(body,list(geo_hierarchy='true'))
+
     data_file <- cache_path("CM_data_",
                             digest::digest(param_string, algo = "md5"), ".rda")
     if (!use_cache || !file.exists(data_file)) {
@@ -110,9 +115,11 @@ get_census <- function (dataset, regions, level=NA, vectors=c(), geo_format = NA
       url <- paste0(base_url, "data.csv?", param_string, "&api_key=", api_key)
       response <- if (!quiet) {
         message("Querying CensusMapper API...")
-        httr::GET(url, httr::progress())
+        #httr::GET(url, httr::progress())
+        httr::POST(paste0(base_url, "data.csv"), body = body, httr::progress())
       } else {
-        httr::GET(url)
+        #httr::GET(url)
+        httr::POST(paste0(base_url, "data.csv"),body = body)
       }
       handle_cm_status_code(response, NULL)
       na_strings <- c("x", "F", "...", "..", "-","N","*","**")
@@ -170,11 +177,14 @@ get_census <- function (dataset, regions, level=NA, vectors=c(), geo_format = NA
       }
       url <- paste0(base_url, "geo.geojson?", param_string, "&api_key=",
                     api_key)
+      body <- list(dataset = dataset, regions = regions, level = level, api_key = api_key)
       response <- if (!quiet) {
         message("Querying CensusMapper API...")
-        httr::GET(url, httr::progress())
+        #httr::GET(url, httr::progress())
+        httr::POST(paste0(base_url, "geo.geojson"), body = body, httr::progress())
       } else {
-        httr::GET(url)
+        #httr::GET(url)
+        httr::POST(paste0(base_url, "geo.geojson"), body = body)
       }
       handle_cm_status_code(response, NULL)
       write(httr::content(response, type = "text", encoding = "UTF-8"), file = geo_file) # cache result

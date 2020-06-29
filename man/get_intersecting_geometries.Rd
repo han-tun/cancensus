@@ -13,6 +13,8 @@ get_intersecting_geometries(
   dataset,
   level,
   geometry,
+  use_cache = TRUE,
+  quiet = FALSE,
   api_key = getOption("cancensus.api_key")
 )
 }
@@ -22,6 +24,10 @@ get_intersecting_geometries(
 \item{level}{The census aggregation level to retrieve. One of \code{"Regions"}, \code{"PR"}, \code{"CMA"}, \code{"CD"}, \code{"CSD"}, \code{"CT"} or \code{"DA"}.}
 
 \item{geometry}{An \code{sf} or \code{sfc} object}
+
+\item{use_cache}{If set to TRUE (the default) data will be read from the local cache if available.}
+
+\item{quiet}{When TRUE, suppress messages and warnings.}
 
 \item{api_key}{An API key for the CensusMapper API. Defaults to \code{options()} and then the \code{CM_API_KEY} environment variable.}
 }

@@ -178,6 +178,8 @@ to get corresponding census geographies and variables that cover the give geomet
   <span class='no'>dataset</span>,
   <span class='no'>level</span>,
   <span class='no'>geometry</span>,
+  <span class='kw'>use_cache</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>api_key</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"cancensus.api_key"</span>)
 )</pre>
 
@@ -195,6 +197,14 @@ to get corresponding census geographies and variables that cover the give geomet
     <tr>
       <th>geometry</th>
       <td><p>An <code>sf</code> or <code>sfc</code> object</p></td>
+    </tr>
+    <tr>
+      <th>use_cache</th>
+      <td><p>If set to TRUE (the default) data will be read from the local cache if available.</p></td>
+    </tr>
+    <tr>
+      <th>quiet</th>
+      <td><p>When TRUE, suppress messages and warnings.</p></td>
     </tr>
     <tr>
       <th>api_key</th>

@@ -9,6 +9,8 @@
 #' @param dataset A CensusMapper dataset identifier.
 #' @param level The census aggregation level to retrieve. One of \code{"Regions"}, \code{"PR"}, \code{"CMA"}, \code{"CD"}, \code{"CSD"}, \code{"CT"} or \code{"DA"}.
 #' @param geometry An \code{sf} or \code{sfc} object
+#' @param use_cache If set to TRUE (the default) data will be read from the local cache if available.
+#' @param quiet When TRUE, suppress messages and warnings.
 #' @param api_key An API key for the CensusMapper API. Defaults to \code{options()} and then the \code{CM_API_KEY} environment variable.
 #'
 #' @source Census data and boundary geographies are reproduced and distributed on
@@ -27,9 +29,14 @@
 #'                           level='CT')
 #'
 #'}
-get_intersecting_geometries <- function(dataset, level, geometry, api_key=getOption("cancensus.api_key")) {
+get_intersecting_geometries <- function(dataset, level, geometry,
+                                        use_cache = TRUE, quiet = FALSE,
+                                        api_key=getOption("cancensus.api_key")) {
   api_key <- robust_api_key(api_key)
-  if ("sf" %in% class(geometry)) {
+  have_api_key <- !is.null(api_key)
+  result <- NULL
+
+    if ("sf" %in% class(geometry)) {
     geometry=sf::st_geometry(geometry)
   }
   if (!("sfc" %in% class(geometry))) {
@@ -39,20 +46,43 @@ get_intersecting_geometries <- function(dataset, level, geometry, api_key=getOpt
     geometry <- sf::st_union(geometry)
   }
 
-  url <- paste0(cancensus_base_url(),"/api/v1/intersecting_geographies")
-  response<-httr::POST(url,
-                       body = list(dataset=dataset,
-                                   level=level,
-                                   geometry=geojsonsf::sfc_geojson(geometry),
-                                   api_key=api_key),
-                       config = httr::accept_json())
+  geo <- geojsonsf::sfc_geojson(geometry)
 
-  if (response$status_code!=200) {
-    message=httr::content(response,as="text")
-    stop(paste("Download of Census Data failed.",
-               message, sep=' '))
+  param_string <- paste0("dataset=", dataset,
+                         "&level=", level,
+                         "&geometry=", geo)
+  data_file <- cache_path("CM_data_intersect_",
+                          digest::digest(param_string, algo = "md5"), ".rda")
+
+  if (!use_cache || !file.exists(data_file)) {
+    if (!have_api_key) {
+      stop(paste("No API key set. Use options(cancensus.api_key = 'XXX') or",
+                 "Sys.setenv(CM_API_KEY = 'XXX') to set one."))
+    }
+    url <- paste0(cancensus_base_url(),"/api/v1/intersecting_geographies")
+    body <- list(dataset=dataset,
+                 level=level,
+                 geometry=geo,
+                 api_key=api_key)
+    response <- if (!quiet) {
+      message("Querying CensusMapper API...")
+      httr::POST(url, body = body,
+                 config = httr::accept_json(),
+                 httr::progress())
+    } else {
+      httr::POST(url, body = body,
+                 config = httr::accept_json())
+    }
+    handle_cm_status_code(response, NULL)
+
+    result <- httr::content(response, type = "text", encoding = "UTF-8") %>%
+      jsonlite::fromJSON()
+    attr(result, "last_updated") <- Sys.time()
+    save(result, file = data_file)
+  } else {
+    if (!quiet) message("Reading intersection data from local cache.")
+    # Load `result` object from cache.
+    load(file = data_file)
   }
-
-  result <- httr::content(response, type = "text", encoding = "UTF-8") %>%
-    jsonlite::fromJSON()
+  result
 }
