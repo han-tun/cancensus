@@ -7,7 +7,7 @@
 #' to get corresponding census geographies and variables that cover the give geometry.
 #'
 #' @param dataset A CensusMapper dataset identifier.
-#' @param level The census aggregation level to retrieve. One of \code{"Regions"}, \code{"PR"}, \code{"CMA"}, \code{"CD"}, \code{"CSD"}, \code{"CT"} or \code{"DA"}.
+#' @param level The census aggregation level to retrieve. One of \code{"Regions"}, \code{"PR"}, \code{"CMA"}, \code{"CD"}, \code{"CSD"}, \code{"CT"}, \code{"DA"}, \code{"EA"} (for 1996 census), or \code{"DB"} (for 2001-2016 censuses)..
 #' @param geometry An \code{sf} or \code{sfc} object
 #' @param use_cache If set to TRUE (the default) data will be read from the local cache if available.
 #' @param quiet When TRUE, suppress messages and warnings.
@@ -15,7 +15,7 @@
 #'
 #' @source Census data and boundary geographies are reproduced and distributed on
 #' an "as is" basis with the permission of Statistics Canada (Statistics Canada
-#' 2001; 2006; 2011; 2016).
+#' 1996; 2001; 2006; 2011; 2016).
 #'
 #' @export
 #'
